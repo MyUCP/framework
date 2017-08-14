@@ -1,0 +1,37 @@
+{
+  "name": "myucp/framework",
+  "description": "MyUCP Framework.",
+  "keywords": ["framework", "myucp"],
+  "license": "MIT",
+  "homepage": "http://myucp.ru",
+  "support": {
+    "issues": "https://github.com/MyUCP/framework/issues",
+    "source": "https://github.com/MyUCP/framework"
+  },
+  "authors": [
+    {
+      "name": "Maksa988",
+      "email": "admin@maksa988.tech"
+    }
+  ],
+  "require": {
+    "php": ">=5.6.4",
+    "ext-mbstring": "*",
+    "ext-openssl": "*",
+    "symfony/var-dumper": "~3.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~5.7"
+  },
+  "autoload": {
+    "classmap": ["src"]
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "6.0.x-dev"
+    }
+  },
+  "version": "6.0.1",
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
