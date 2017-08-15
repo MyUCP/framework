@@ -81,6 +81,18 @@ class Container implements ArrayAccess
     }
 
     /**
+     * Alias a type to a different name.
+     *
+     * @param  string  $abstract
+     * @param  string  $alias
+     * @return void
+     */
+    public function alias($abstract, $alias)
+    {
+        $this->aliases[$abstract] = $alias;
+    }
+
+    /**
      * Resolve the given type from the container.
      *
      * @param  string  $abstract
@@ -97,6 +109,10 @@ class Container implements ArrayAccess
 
         $this->with[] = $parameters;
 
+        if ($this->isBinded($abstract)) {
+            return $this->instances[$abstract] = $this->bindings[$abstract]['concrete'];
+        }
+
         $object = $this->build($abstract);
 
         $this->instances[$abstract] = $object;
@@ -106,6 +122,30 @@ class Container implements ArrayAccess
         array_pop($this->with);
 
         return $object;
+    }
+
+    /**
+     * Determine if a given string is a bind.
+     *
+     * @param  string  $abstract
+     * @return bool
+     */
+    public function isBinded($abstract)
+    {
+        return isset($this->bindings[$abstract]);
+    }
+
+    /**
+     * Determine if a given type is shared.
+     *
+     * @param  string  $abstract
+     * @return bool
+     */
+    public function isShared($abstract)
+    {
+        return isset($this->instances[$abstract]) ||
+            (isset($this->bindings[$abstract]['shared']) &&
+                $this->bindings[$abstract]['shared'] === true);
     }
 
     /**
@@ -247,16 +287,6 @@ class Container implements ArrayAccess
         if (! is_null($binding = $this->findInContextualBindings($abstract))) {
             return $binding;
         }
-
-        if (empty($this->abstractAliases[$abstract])) {
-            return;
-        }
-
-        foreach ($this->abstractAliases[$abstract] as $alias) {
-            if (! is_null($binding = $this->findInContextualBindings($alias))) {
-                return $binding;
-            }
-        }
     }
 
     /**
@@ -353,20 +383,17 @@ class Container implements ArrayAccess
      */
     public function bind($abstract, $concrete = null, $shared = false)
     {
-        // If no concrete type was given, we will simply set the concrete type to the
-        // abstract type. After that, the concrete type to be registered as shared
-        // without being forced to state their classes in both of the parameters.
         $this->dropStaleInstances($abstract);
         if (is_null($concrete)) {
             $concrete = $abstract;
         }
-        // If the factory is not a Closure, it means it is just a class name which is
-        // bound into this container to the abstract type and we will just wrap it
-        // up inside its own Closure to give us more convenience when extending.
-        if (! $concrete instanceof Closure) {
-            $concrete = $this->getClosure($abstract, $concrete);
+
+        if ($concrete instanceof Closure) {
+            $concrete = $this->callBindFunction($concrete);
         }
+
         $this->bindings[$abstract] = compact('concrete', 'shared');
+
         // If the abstract type was already resolved in this container we'll fire the
         // rebound listener so that any objects which have already gotten resolved
         // can have their copy of the object updated via the listener callbacks.
@@ -430,20 +457,22 @@ class Container implements ArrayAccess
     }
 
     /**
-     * Get the Closure to be used when building a type.
+     * Call bind Function to get Object.
      *
      * @param  string  $abstract
      * @param  string  $concrete
-     * @return \Closure
+     * @return mixed
+     *
+     * @throws \MyUCP\Container\BindingResolutionException
      */
-    protected function getClosure($abstract, $concrete)
+    protected function callBindFunction($concrete)
     {
-        return function ($container, $parameters = []) use ($abstract, $concrete) {
-            if ($abstract == $concrete) {
-                return $container->build($concrete);
-            }
-            return $container->make($concrete, $parameters);
-        };
+        $concrete = $concrete();
+        if(is_object($concrete)) {
+            return $concrete;
+        }
+
+        return $this->build($concrete);
     }
 
     /**

@@ -33,6 +33,8 @@ class Core extends Container implements CoreInterface {
         if ($basePath) {
             $this->setBasePath($basePath);
         }
+
+        $this->registerCoreContainerAliases();
     }
 
     /**
@@ -66,5 +68,20 @@ class Core extends Container implements CoreInterface {
     public function basePath($path = '')
     {
         return $this->basePath.($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
+
+    /**
+     * Register the core class aliases in the container.
+     *
+     * @return void
+     */
+    public function registerCoreContainerAliases()
+    {
+        foreach ([
+                     'app'                  => \MyUCP\Core::class,
+                     'router'               => \MyUCP\Routing\Router::class,
+                 ] as $key => $alias) {
+            $this->alias($key, $alias);
+        }
     }
 }
