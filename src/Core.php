@@ -2,7 +2,7 @@
 
 namespace MyUCP;
 
-class App {
+class Core {
 
     /*
      * MyUCP framework version
