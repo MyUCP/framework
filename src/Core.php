@@ -2,7 +2,11 @@
 
 namespace MyUCP;
 
-class Core {
+use ArrayAccess;
+use MyUCP\Container\Container;
+use MyUCP\Interfaces\Core as CoreInterface;
+
+class Core extends Container implements CoreInterface {
 
     /*
      * MyUCP framework version
@@ -53,4 +57,14 @@ class Core {
         return $this;
     }
 
+    /**
+     * Get the base path of the application.
+     *
+     * @param string $path Optionally, a path to append to the base path
+     * @return string
+     */
+    public function basePath($path = '')
+    {
+        return $this->basePath.($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
 }
