@@ -365,7 +365,20 @@ if (! function_exists('dd')) {
         array_map(function ($x) {
             (new Dumper)->dump($x);
         }, func_get_args());
-        
+
         die(1);
+    }
+}
+
+if (! function_exists('last')) {
+    /**
+     * Get the last element from an array.
+     *
+     * @param  array  $array
+     * @return mixed
+     */
+    function last($array)
+    {
+        return end($array);
     }
 }
