@@ -123,6 +123,12 @@ class Container implements ArrayAccess
             $object = $this->make($abstract);
         }
 
+        $this->instances[$abstract] = $object;
+
+        $this->resolved[$abstract] = true;
+
+        array_pop($this->with);
+
         return $object;
     }
 
