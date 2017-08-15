@@ -60,20 +60,6 @@ class Container implements ArrayAccess
     protected $with = [];
 
     /**
-     * The contextual binding map.
-     *
-     * @var array
-     */
-    public $contextual = [];
-
-    /**
-     * All of the registered rebound callbacks.
-     *
-     * @var array
-     */
-    protected $reboundCallbacks = [];
-
-    /**
      * Get the alias for an abstract if available.
      *
      * @param  string  $abstract
@@ -105,23 +91,13 @@ class Container implements ArrayAccess
     {
         $abstract = $this->getAlias($abstract);
 
-        // If an instance of the type is currently being managed as a singleton we'll
-        // just return an existing instance instead of instantiating new instances
-        // so the developer can keep using the same objects instance every time.
         if (isset($this->instances[$abstract])) {
             return $this->instances[$abstract];
         }
 
         $this->with[] = $parameters;
 
-        // We're ready to instantiate an instance of the concrete type registered for
-        // the binding. This will instantiate the types, as well as resolve any of
-        // its "nested" dependencies recursively until all have gotten resolved.
-        if ($this->isBuildable($abstract)) {
-            $object = $this->build($abstract);
-        } else {
-            $object = $this->make($abstract);
-        }
+        $object = $this->build($abstract);
 
         $this->instances[$abstract] = $object;
 
@@ -138,9 +114,9 @@ class Container implements ArrayAccess
      * @param  mixed   $concrete
      * @return bool
      */
-    protected function isBuildable($concrete)
+    protected function isBuildable($abstract)
     {
-        return $concrete instanceof Closure;
+        return $abstract instanceof Closure;
     }
 
     /**
@@ -182,13 +158,6 @@ class Container implements ArrayAccess
      */
     public function build($concrete)
     {
-        // If the concrete type is actually a Closure, we will just execute it and
-        // hand back the results of the functions, which allows functions to be
-        // used as resolvers for more fine-tuned resolution of these objects.
-        if ($concrete instanceof Closure) {
-            return $concrete($this, $this->getLastParameterOverride());
-        }
-
         $reflector = new ReflectionClass($concrete);
 
         if (! $reflector->isInstantiable()) {
