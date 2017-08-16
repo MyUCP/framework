@@ -3,14 +3,18 @@
 namespace MyUCP\Request;
 
 use LogicException;
+use ArrayAccess;
+use MyUCP\Interfaces\Support\Arrayable;
 use MyUCP\Support\Arr;
 use MyUCP\Support\Str;
-use MyUCP\Request\Traits\Input;
+use MyUCP\Request\AcceptHeader\AcceptHeader;
 use MyUCP\Request\Exception\SuspiciousOperationException;
 
-class Request
+class Request implements Arrayable, ArrayAccess
 {
-    use Input;
+    use Traits\Input,
+        Traits\Json,
+        Traits\Post;
 
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
@@ -143,6 +147,16 @@ class Request
     private $isHostValid = true;
 
     /**
+     * @var array
+     */
+    protected static $formats;
+
+    /**
+     * @var array
+     */
+    protected $acceptableContentTypes;
+
+    /**
      * Constructor.
      *
      * @param array           $query      The GET parameters
@@ -262,7 +276,7 @@ class Request
         if (self::$requestFactory) {
             $request = call_user_func(self::$requestFactory, $query, $request, $attributes, $cookies, $files, $server, $content);
             if (!$request instanceof self) {
-                throw new LogicException('The Request factory must return an instance of Symfony\Component\HttpFoundation\Request.');
+                throw new LogicException('The Request factory must return an instance of MyUCP\Request\Request.');
             }
             return $request;
         }
@@ -782,5 +796,200 @@ class Request
     public function isMethodCacheable()
     {
         return Arr::in(['GET', 'HEAD'], $this->getMethod());
+    }
+
+    /**
+     * Get the input source for the request.
+     *
+     * @return \MyUCP\Request\ParameterBag
+     */
+    protected function getInputSource()
+    {
+        if ($this->isJson()) {
+            return $this->json();
+        }
+        return $this->getRealMethod() == 'GET' ? $this->query : $this->request;
+    }
+
+    /**
+     * Gets the mime type associated with the format.
+     *
+     * @param string $format The format
+     *
+     * @return string The associated mime type (null if not found)
+     */
+    public function getMimeType($format)
+    {
+        if (null === static::$formats) {
+            static::initializeFormats();
+        }
+        return isset(static::$formats[$format]) ? static::$formats[$format][0] : null;
+    }
+
+    /**
+     * Initializes HTTP request formats.
+     *
+     * @return array
+     */
+    protected static function initializeFormats()
+    {
+        return static::$formats = array(
+            'html' => array('text/html', 'application/xhtml+xml'),
+            'txt' => array('text/plain'),
+            'js' => array('application/javascript', 'application/x-javascript', 'text/javascript'),
+            'css' => array('text/css'),
+            'json' => array('application/json', 'application/x-json'),
+            'xml' => array('text/xml', 'application/xml', 'application/x-xml'),
+            'rdf' => array('application/rdf+xml'),
+            'atom' => array('application/atom+xml'),
+            'rss' => array('application/rss+xml'),
+            'form' => array('application/x-www-form-urlencoded'),
+        );
+    }
+
+    /**
+     * Returns true if the request is a XMLHttpRequest.
+     *
+     * It works if your JavaScript library sets an X-Requested-With HTTP header.
+     * It is known to work with common JavaScript frameworks:
+     *
+     * @see http://en.wikipedia.org/wiki/List_of_Ajax_frameworks#JavaScript
+     *
+     * @return bool true if the request is an XMLHttpRequest, false otherwise
+     */
+    public function isXmlHttpRequest()
+    {
+        return 'XMLHttpRequest' == $this->headers->get('X-Requested-With');
+    }
+
+    /**
+     * Determine if the request is the result of an AJAX call.
+     *
+     * @return bool
+     */
+    public function ajax()
+    {
+        return $this->isXmlHttpRequest();
+    }
+    /**
+     * Determine if the request is the result of an PJAX call.
+     *
+     * @return bool
+     */
+    public function pjax()
+    {
+        return $this->headers->get('X-PJAX') == true;
+    }
+
+    /**
+     * Gets a list of content types acceptable by the client browser.
+     *
+     * @return array List of content types in preferable order
+     */
+    public function getAcceptableContentTypes()
+    {
+        if (null !== $this->acceptableContentTypes) {
+            return $this->acceptableContentTypes;
+        }
+        return $this->acceptableContentTypes = array_keys(AcceptHeader::fromString($this->headers->get('Accept'))->all());
+    }
+
+    /**
+     * Get the client IP address.
+     *
+     * @return string
+     */
+    public function ip()
+    {
+        return $this->server->get('REMOTE_ADDR');
+    }
+
+    /**
+     * Get the client user agent.
+     *
+     * @return string
+     */
+    public function userAgent()
+    {
+        return $this->headers->get('User-Agent');
+    }
+
+    /**
+     * Get all of the input and files for the request.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->all();
+    }
+
+    /**
+     * Determine if the given offset exists.
+     *
+     * @param  string  $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return array_key_exists($offset, $this->all());
+    }
+
+    /**
+     * Get the value at the given offset.
+     *
+     * @param  string  $offset
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        return data_get($this->all(), $offset);
+    }
+
+    /**
+     * Set the value at the given offset.
+     *
+     * @param  string  $offset
+     * @param  mixed  $value
+     * @return void
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->getInputSource()->set($offset, $value);
+    }
+
+    /**
+     * Remove the value at the given offset.
+     *
+     * @param  string  $offset
+     * @return void
+     */
+    public function offsetUnset($offset)
+    {
+        $this->getInputSource()->remove($offset);
+    }
+
+    /**
+     * Check if an input element is set on the request.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function __isset($key)
+    {
+        return ! is_null($this->__get($key));
+    }
+    /**
+     * Get an input element from the request.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        if ($this->offsetExists($key)) {
+            return $this->offsetGet($key);
+        }
+        return null;
     }
 }
