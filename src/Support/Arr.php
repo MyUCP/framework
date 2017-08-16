@@ -180,6 +180,40 @@ class Arr
     }
 
     /**
+     * Check if an item or items exist in an array.
+     *
+     * @param ArrayAccess|array $array
+     * @param ArrayAccess|array|string $value
+     * @return bool
+     */
+    public static function in($array, $value)
+    {
+        if(!$array) {
+            return false;
+        }
+
+        if($value instanceof ArrayAccess || is_array($value)) {
+            foreach ($value as $key) {
+                if($key instanceof ArrayAccess || is_array($key)) {
+                    if(static::in($array, $key)) {
+                        return true;
+                    }
+                } else {
+                    if(static::in($array, $key)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        if(in_array($value, $array)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Check if an item or items exist in an array using "dot" notation.
      *
      * @param  \ArrayAccess|array  $array

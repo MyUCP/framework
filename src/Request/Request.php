@@ -4,11 +4,14 @@ namespace MyUCP\Request;
 
 use LogicException;
 use MyUCP\Support\Arr;
-use MyUCP\Request\Exception\SuspiciousOperationException;
 use MyUCP\Support\Str;
+use MyUCP\Request\Traits\Input;
+use MyUCP\Request\Exception\SuspiciousOperationException;
 
 class Request
 {
+    use Input;
+
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
@@ -199,7 +202,7 @@ class Request
     {
         $request = self::createRequestFromFactory($_GET, $_POST, array(), $_COOKIE, $_FILES, $_SERVER);
         if (0 === Str::contains($request->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
-            && Arr::has(['PUT', 'DELETE', 'PATCH'], Str::upper($request->server->get('REQUEST_METHOD', 'GET')))
+            && Arr::in(['PUT', 'DELETE', 'PATCH'], Str::upper($request->server->get('REQUEST_METHOD', 'GET')))
         ) {
             parse_str($request->getContent(), $data);
             $request->request = new ParameterBag($data);
@@ -388,7 +391,7 @@ class Request
 
         foreach ($this->headers->all() as $key => $value) {
             $key = strtoupper(str_replace('-', '_', $key));
-            if (Arr::has(['CONTENT_TYPE', 'CONTENT_LENGTH'], $key)) {
+            if (Arr::in(['CONTENT_TYPE', 'CONTENT_LENGTH'], $key)) {
                 $_SERVER[$key] = implode(', ', $value);
             } else {
                 $_SERVER['HTTP_'.$key] = implode(', ', $value);
@@ -756,7 +759,7 @@ class Request
      */
     public function isMethodSafe()
     {
-        return Arr::has(['GET', 'HEAD', 'OPTIONS', 'TRACE'], $this->getMethod());
+        return Arr::in(['GET', 'HEAD', 'OPTIONS', 'TRACE'], $this->getMethod());
     }
 
     /**
@@ -766,7 +769,7 @@ class Request
      */
     public function isMethodIdempotent()
     {
-        return Arr::has(['HEAD', 'GET', 'PUT', 'DELETE', 'TRACE', 'OPTIONS', 'PURGE'], $this->getMethod());
+        return Arr::in(['HEAD', 'GET', 'PUT', 'DELETE', 'TRACE', 'OPTIONS', 'PURGE'], $this->getMethod());
     }
 
     /**
@@ -778,6 +781,6 @@ class Request
      */
     public function isMethodCacheable()
     {
-        return Arr::has(['GET', 'HEAD'], $this->getMethod());
+        return Arr::in(['GET', 'HEAD'], $this->getMethod());
     }
 }

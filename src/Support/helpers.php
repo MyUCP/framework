@@ -270,7 +270,7 @@ if (! function_exists('data_get')) {
      * @param  mixed   $default
      * @return mixed
      */
-    function data_get($target, $key, $default = null)
+    function data_get($target, $key = null, $default = null)
     {
         if (is_null($key)) {
             return $target;
