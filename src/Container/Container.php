@@ -60,6 +60,13 @@ class Container implements ArrayAccess
     protected $with = [];
 
     /**
+     * The contextual binding map.
+     *
+     * @var array
+     */
+    public $contextual = [];
+
+    /**
      * Get the alias for an abstract if available.
      *
      * @param  string  $abstract
@@ -198,6 +205,7 @@ class Container implements ArrayAccess
      */
     public function build($concrete)
     {
+
         $reflector = new ReflectionClass($concrete);
 
         if (! $reflector->isInstantiable()) {
@@ -234,6 +242,7 @@ class Container implements ArrayAccess
      */
     protected function resolveDependencies(array $dependencies)
     {
+
         $results = [];
 
         foreach ($dependencies as $dependency) {
@@ -312,6 +321,7 @@ class Container implements ArrayAccess
      */
     protected function resolvePrimitive(ReflectionParameter $parameter)
     {
+
         if (! is_null($concrete = $this->getContextualConcrete('$'.$parameter->name))) {
             return $concrete instanceof Closure ? $concrete($this) : $concrete;
         }
