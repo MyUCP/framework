@@ -384,6 +384,47 @@ class Container implements ArrayAccess
     }
 
     /**
+     * Register an existing instance as shared in the container.
+     *
+     * @param  string  $abstract
+     * @param  mixed   $instance
+     * @return void
+     */
+    public function instance($abstract, $instance)
+    {
+        $this->removeAbstractAlias($abstract);
+        $isBound = $this->bound($abstract);
+        unset($this->aliases[$abstract]);
+        // We'll check to determine if this type has been bound before, and if it has
+        // we will fire the rebound callbacks registered with the container and it
+        // can be updated with consuming classes that have gotten resolved here.
+        $this->instances[$abstract] = $instance;
+        if ($isBound) {
+            $this->rebound($abstract);
+        }
+    }
+
+    /**
+     * Remove an alias from the contextual binding alias cache.
+     *
+     * @param  string  $searched
+     * @return void
+     */
+    protected function removeAbstractAlias($searched)
+    {
+        if (! isset($this->aliases[$searched])) {
+            return;
+        }
+        foreach ($this->abstractAliases as $abstract => $aliases) {
+            foreach ($aliases as $index => $alias) {
+                if ($alias == $searched) {
+                    unset($this->abstractAliases[$abstract][$index]);
+                }
+            }
+        }
+    }
+
+    /**
      * Register a binding with the container.
      *
      * @param  string|array  $abstract
