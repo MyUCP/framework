@@ -298,6 +298,17 @@ class Str
     }
 
     /**
+     * Check whether a string is a string
+     *
+     * @param  string $string
+     * @return bool
+     */
+    public static function string($string)
+    {
+        return is_string($string);
+    }
+
+    /**
      * Returns the replacements for the ascii method.
      *
      * Note: Adapted from Stringy\Stringy.
