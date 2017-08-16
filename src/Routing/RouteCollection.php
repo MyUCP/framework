@@ -49,6 +49,7 @@ class RouteCollection implements Countable, IteratorAggregate
         $this->addLookups($route);
         return $route;
     }
+
     /**
      * Add the given route to the arrays of routes.
      *

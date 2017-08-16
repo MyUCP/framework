@@ -78,8 +78,9 @@ class Core extends Container implements CoreInterface {
     public function registerCoreContainerAliases()
     {
         foreach ([
-                     'app'                  => \MyUCP\Core::class,
-                     'router'               => \MyUCP\Routing\Router::class,
+                    'app'                   =>  \MyUCP\Core::class,
+                    'router'                =>  \MyUCP\Routing\Router::class,
+                    'config'                =>  \MyUCP\Config\Config::class,
                  ] as $key => $alias) {
             $this->alias($key, $alias);
         }
