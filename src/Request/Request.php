@@ -14,7 +14,8 @@ class Request implements Arrayable, ArrayAccess
 {
     use Traits\Input,
         Traits\Json,
-        Traits\Post;
+        Traits\Post,
+        Traits\CheckMethod;
 
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
