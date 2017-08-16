@@ -67,6 +67,20 @@ class Container implements ArrayAccess
     public $contextual = [];
 
     /**
+     * The registered aliases keyed by the abstract name.
+     *
+     * @var array
+     */
+    protected $abstractAliases = [];
+
+    /**
+     * All of the registered rebound callbacks.
+     *
+     * @var array
+     */
+    protected $reboundCallbacks = [];
+
+    /**
      * Get the alias for an abstract if available.
      *
      * @param  string  $abstract
