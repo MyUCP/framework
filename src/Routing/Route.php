@@ -5,6 +5,7 @@ namespace MyUCP\Routing;
 use LogicException;
 use MyUCP\Container\Container;
 use MyUCP\Support\Arr;
+use MyUCP\Support\Str;
 
 class Route
 {
@@ -372,6 +373,18 @@ class Route
     }
 
     /**
+     * Get the key / value list of parameters without null values.
+     *
+     * @return array
+     */
+    public function parametersWithoutNulls()
+    {
+        return array_filter($this->parameters(), function ($p) {
+            return ! is_null($p);
+        });
+    }
+
+    /**
      * Determine if the route only responds to HTTP requests.
      *
      * @return bool
@@ -477,5 +490,41 @@ class Route
     public function methods()
     {
         return $this->methods;
+    }
+
+    /**
+     * Get the controller instance for the route.
+     *
+     * @return mixed
+     */
+    public function getController()
+    {
+        $class = $this->parseControllerCallback()[0];
+
+        if (! $this->controller) {
+            $this->controller = $this->container->make("App\\Controllers\\".$class);
+        }
+
+        return $this->controller;
+    }
+
+    /**
+     * Get the controller method used for the route.
+     *
+     * @return string
+     */
+    public function getControllerMethod()
+    {
+        return $this->parseControllerCallback()[1];
+    }
+
+    /**
+     * Parse the controller.
+     *
+     * @return array
+     */
+    protected function parseControllerCallback()
+    {
+        return Str::parseCallback($this->action['uses']);
     }
 }

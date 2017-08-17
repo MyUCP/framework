@@ -2,9 +2,10 @@
 
 namespace MyUCP\Routing;
 
-
 class RouteCompiler
 {
+    use RouteDependencyResolverTrait;
+
     /**
      * The route instance.
      *
@@ -15,7 +16,7 @@ class RouteCompiler
     /**
      * Create a new Route compiler instance.
      *
-     * @param  \MyUCP\Routing\Route  $route
+     * @param  \MyUCP\Routing\Route $route
      * @return void
      */
     public function __construct($route)
@@ -30,6 +31,17 @@ class RouteCompiler
      */
     public function compile()
     {
-        //
+        $controller = $this->route->getController();
+        $method = $this->route->getControllerMethod();
+
+        $parameters = $this->resolveClassMethodDependencies(
+            $this->route->parametersWithoutNulls(), $controller, $method
+        );
+
+        if (method_exists($controller, 'callAction')) {
+            return $controller->callAction($method, $parameters);
+        }
+
+        return $controller->{$method}(...array_values($parameters));
     }
 }

@@ -309,6 +309,18 @@ class Str
     }
 
     /**
+     * Parse a Class@method style callback into class and method.
+     *
+     * @param  string  $callback
+     * @param  string|null  $default
+     * @return array
+     */
+    public static function parseCallback($callback, $default = null)
+    {
+        return static::contains($callback, '@') ? explode('@', $callback, 2) : [$callback, $default];
+    }
+
+    /**
      * Returns the replacements for the ascii method.
      *
      * Note: Adapted from Stringy\Stringy.

@@ -192,7 +192,8 @@ class Router
     protected function newRoute($methods, $uri, $action)
     {
         return (new Route($methods, $uri, $action))
-            ->setRouter($this);
+            ->setRouter($this)
+            ->setContainer($this->container);
     }
 
     /**
