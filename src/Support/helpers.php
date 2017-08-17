@@ -4,6 +4,7 @@ use MyUCP\Support\Arr;
 use MyUCP\Support\Str;
 use MyUCP\Support\Collection;
 use MyUCP\Support\Debug\Dumper;
+use MyUCP\Container\Container;
 
 if (! function_exists('array_add')) {
     /**
@@ -380,5 +381,24 @@ if (! function_exists('last')) {
     function last($array)
     {
         return end($array);
+    }
+}
+
+if (! function_exists('app')) {
+    /**
+     * Get the available container instance.
+     *
+     * @param  string  $abstract
+     * @param  array   $parameters
+     * @return mixed|\MyUCP\Core
+     */
+    function app($abstract = null, array $parameters = [])
+    {
+        if (is_null($abstract)) {
+            return Container::getInstance();
+        }
+        return empty($parameters)
+            ? Container::getInstance()->make($abstract)
+            : Container::getInstance()->makeWith($abstract, $parameters);
     }
 }

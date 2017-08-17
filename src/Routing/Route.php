@@ -5,7 +5,6 @@ namespace MyUCP\Routing;
 use LogicException;
 use MyUCP\Container\Container;
 use MyUCP\Support\Arr;
-use MyUCP\Request\Request;
 
 class Route
 {
@@ -15,6 +14,13 @@ class Route
      * @var string
      */
     public $uri;
+
+    /**
+     * The URI regex pattern the route responds to.
+     *
+     * @var string
+     */
+    public $regexUri;
 
     /**
      * The HTTP methods the route responds to.
@@ -59,6 +65,13 @@ class Route
     public $parameterNames;
 
     /**
+     * The parameter patterns for the route.
+     *
+     * @var array|null
+     */
+    public $parameterPatterns;
+
+    /**
      * The compiled version of the route.
      *
      * @var \MyUCP\Routing\CompiledRoute
@@ -76,8 +89,11 @@ class Route
     public function __construct($methods, $uri, $action)
     {
         $this->uri = $uri;
+        $this->regexUri = $this->parseUri();
         $this->methods = (array) $methods;
         $this->action = $this->parseAction($action);
+        $this->parameterNames = $this->parseParameterNames();
+        $this->parameterPatterns = $this->parseParameterPatterns();
     }
 
     /**
@@ -103,6 +119,36 @@ class Route
     public function parseAction($action)
     {
         return RouteAction::parse($this->uri, $action);
+    }
+
+    /**
+     * Parse URI to regex pattern
+     *
+     * @return string
+     */
+    public function parseUri()
+    {
+        return RouteMatch::uriToRegex($this);
+    }
+
+    /**
+     * Parse URI parameter names to array
+     *
+     * @return array
+     */
+    public function parseParameterNames()
+    {
+        return RouteMatch::parseParameterNames($this);
+    }
+
+    /**
+     * Parse URI parameter patterns to array
+     *
+     * @return array
+     */
+    public function parseParameterPatterns()
+    {
+        return RouteMatch::parseParameterPatterns($this);
     }
 
     /**
@@ -286,6 +332,18 @@ class Route
         $this->parameters[$name] = $value;
     }
 
+
+    /**
+     * Set a parameters to the given array.
+     *
+     * @param  array  $parameters
+     * @return void
+     */
+    public function setParameters(array $parameters)
+    {
+        $this->parameters = $parameters;
+    }
+
     /**
      * Unset a parameter on the route if it is set.
      *
@@ -407,21 +465,5 @@ class Route
     public function methods()
     {
         return $this->methods;
-    }
-
-    /**
-     * Bind the route to a given request for execution.
-     *
-     * @param  \MyUCP\Request\Request  $request
-     * @return $this
-     */
-    public function bind(Request $request)
-    {
-        $this->compileRoute();
-
-        $this->parameters = (new RouteParameterBinder($this))
-            ->parameters($request);
-
-        return $this;
     }
 }

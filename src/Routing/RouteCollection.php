@@ -7,6 +7,7 @@ use ArrayIterator;
 use IteratorAggregate;
 use MyUCP\Support\Arr;
 use MyUCP\Request\Request;
+use MyUCP\Response\Exception\NotFoundHttpException;
 
 class RouteCollection implements Countable, IteratorAggregate
 {
@@ -198,11 +199,23 @@ class RouteCollection implements Countable, IteratorAggregate
     {
         $routes = $this->get($request->getMethod());
 
-        $results = [];
-
-        foreach ($routes as $pattern => $route) {
-            $results[] = $request->is($route->uri);
+        foreach ($routes as $route) {
+            if(RouteMatch::parseUri($route, $request)) {
+                return $route;
+            }
         }
 
+        throw new NotFoundHttpException;
+    }
+
+    /**
+     * Determine if the route collection contains a given named route.
+     *
+     * @param  string  $name
+     * @return bool
+     */
+    public function hasNamedRoute($name)
+    {
+        return ! is_null($this->getByName($name));
     }
 }

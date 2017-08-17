@@ -2,18 +2,105 @@
 
 namespace MyUCP\Routing;
 
-
 use MyUCP\Request\Request;
 
 class RouteMatch
 {
+    /**
+     * Parse URI to regex pattern
+     *
+     * @param \MyUCP\Routing\ $route
+     *
+     * @return string
+     */
+    public static function uriToRegex(Route $route)
+    {
+        $regexUri = '/^' . preg_replace('/\//', '\/', $route->uri) .  '\/?$/';
+
+        if(preg_match_all('/\{([a-z]+):(.*?)\}/', $route->uri, $preg)){
+            for($i = 0; $i < count($preg[0]); $i++) {
+                $regexUri = str_replace($preg[0][$i], '(' . $preg[2][$i] . ')', $regexUri);
+            }
+        }
+
+        return $regexUri;
+    }
 
     /**
+     * Parse URI parameter names to array
+     *
+     * @param \MyUCP\Routing\Route $route
+     *
+     * @return array
+     */
+    public static function parseParameterNames(Route $route)
+    {
+        $params = [];
+
+        preg_match_all('/\{([a-z]+):(.*?)\}/', $route->uri, $preg);
+
+        for($i = 0; $i < count($preg[0]); $i++){
+            $params[] = $preg[1][$i];
+        }
+
+        return $params;
+    }
+
+    /**
+     * Parse URI parameter patterns to array
+     *
+     * @param \MyUCP\Routing\Route $route
+     *
+     * @return array
+     */
+    public static function parseParameterPatterns(Route $route)
+    {
+        $params = [];
+
+        preg_match_all('/\{([a-z]+):(.*?)\}/', $route->uri, $preg);
+
+        for($i = 0; $i < count($preg[0]); $i++){
+            $params[] = $preg[2][$i];
+        }
+
+        return $params;
+    }
+
+    /**
+     * Check the pattern to reflect the current address
+     *
      * @param Route $route
      * @param Request $request
+     *
+     * @return bool
      */
-    public function parseUri(Route $route, Request $request)
+    public static function parseUri(Route $route, Request $request)
     {
-        $regex = '/^' . preg_replace('/\//', '\/', $route) .  '\/?$/';
+        if(preg_match($route->regexUri, $request->path(), $preg)) {
+            $route->setParameters(static::parseParameters($route, $preg));
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Retrieves all settings from the current address according to the pattern
+     *
+     * @param Route $route
+     * @param array $preg
+     *
+     * @return array
+     */
+    public static function parseParameters(Route $route, array $preg)
+    {
+        $parameters = [];
+
+        for($i = 1; $i < count($preg); $i++){
+            $parameters[$route->parameterNames[$i - 1]] = $preg[$i];
+        }
+
+        return $parameters;
     }
 }

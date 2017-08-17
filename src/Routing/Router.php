@@ -23,6 +23,19 @@ class Router
     protected $container;
 
     /**
+     * The currently dispatched route instance.
+     *
+     * @var \MyUCP\Routing\Route
+     */
+    protected $current;
+    /**
+     * The request currently being dispatched.
+     *
+     * @var \MyUCP\Request\Request
+     */
+    protected $currentRequest;
+
+    /**
      * All of the verbs supported by the router.
      *
      * @var array
@@ -252,5 +265,68 @@ class Router
         $this->container->instance(Route::class, $route);
 
         return $route;
+    }
+
+    /**
+     * Get a route parameter for the current route.
+     *
+     * @param  string  $key
+     * @param  string  $default
+     * @return mixed
+     */
+    public function input($key, $default = null)
+    {
+        return $this->current()->parameter($key, $default);
+    }
+
+    /**
+     * Get the request currently being dispatched.
+     *
+     * @return \MyUCP\Request\Request
+     */
+    public function getCurrentRequest()
+    {
+        return $this->currentRequest;
+    }
+
+    /**
+     * Get the currently dispatched route instance.
+     *
+     * @return \MyUCP\Routing\Route
+     */
+    public function getCurrentRoute()
+    {
+        return $this->current();
+    }
+
+    /**
+     * Get the currently dispatched route instance.
+     *
+     * @return \MyUCP\Routing\Route
+     */
+    public function current()
+    {
+        return $this->current;
+    }
+
+    /**
+     * Check if a route with the given name exists.
+     *
+     * @param  string  $name
+     * @return bool
+     */
+    public function has($name)
+    {
+        return $this->routes->hasNamedRoute($name);
+    }
+
+    /**
+     * Get the current route name.
+     *
+     * @return string|null
+     */
+    public function currentRouteName()
+    {
+        return $this->current() ? $this->current()->getName() : null;
     }
 }

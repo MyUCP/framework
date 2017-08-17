@@ -81,6 +81,30 @@ class Container implements ArrayAccess
     protected $reboundCallbacks = [];
 
     /**
+     * Set the globally available instance of the container.
+     *
+     * @return static
+     */
+    public static function getInstance()
+    {
+        if (is_null(static::$instance)) {
+            static::$instance = new static;
+        }
+        return static::$instance;
+    }
+
+    /**
+     * Set the shared instance of the container.
+     *
+     * @param  \MyUCP\Container\Container|null  $container
+     * @return static
+     */
+    public static function setInstance(Container $container = null)
+    {
+        return static::$instance = $container;
+    }
+
+    /**
      * Get the alias for an abstract if available.
      *
      * @param  string  $abstract
@@ -393,6 +417,18 @@ class Container implements ArrayAccess
      * @return mixed
      */
     public function make($abstract, array $parameters = [])
+    {
+        return $this->resolve($abstract, $parameters);
+    }
+
+    /**
+     * Resolve the given type with the given parameter overrides.
+     *
+     * @param  string  $abstract
+     * @param  array  $parameters
+     * @return mixed
+     */
+    public function makeWith($abstract, array $parameters)
     {
         return $this->resolve($abstract, $parameters);
     }
