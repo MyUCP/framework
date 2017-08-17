@@ -2,6 +2,8 @@
 
 namespace MyUCP\Routing;
 
+use MyUCP\Request\Request;
+
 class RouteCompiler
 {
     use RouteDependencyResolverTrait;
@@ -27,9 +29,11 @@ class RouteCompiler
     /**
      * Compile the route.
      *
+     * @param \MyUCP\Request\Request $request
+     *
      * @return \MyUCP\Routing\CompiledRoute
      */
-    public function compile()
+    public function compile(Request $request)
     {
         $controller = $this->route->getController();
         $method = $this->route->getControllerMethod();
@@ -44,6 +48,7 @@ class RouteCompiler
 
         return (new CompiledRoute(
             $this->route,
+            $request,
             $controller->{$method}(...array_values($parameters))
         ))->getResponse();
     }

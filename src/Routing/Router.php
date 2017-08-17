@@ -263,7 +263,8 @@ class Router
         $this->currentRequest = $request;
 
         $route = $this->findRoute($request);
-        $route->compileRoute();
+
+        $route->compileRoute($request);
 
         return $route->getCompiled();
     }
