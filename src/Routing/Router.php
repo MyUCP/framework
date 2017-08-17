@@ -249,7 +249,10 @@ class Router
     {
         $this->currentRequest = $request;
 
-        return $this->findRoute($request);
+        $route = $this->findRoute($request);
+        $route->compileRoute();
+
+        return $route->getCompiled();
     }
 
     /**

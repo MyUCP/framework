@@ -436,6 +436,18 @@ class Route
     }
 
     /**
+     * Compile the route
+     *
+     * @return void
+     */
+    public function compileRoute()
+    {
+        if (! $this->compiled) {
+            $this->compiled = (new RouteCompiler($this))->compile();
+        }
+    }
+
+    /**
      * Get the compiled version of the route.
      *
      * @return \MyUCP\Routing\CompiledRoute
