@@ -8,10 +8,30 @@ use Serializable;
 
 class CompiledRoute implements Serializable
 {
+    /**
+     * @var string
+     */
     private $uri;
+
+    /**
+     * @var array
+     */
     private $parameters;
+
+    /**
+     * @var \MyUCP\Response\Response
+     */
     private $response;
 
+    /**
+     * CompiledRoute constructor.
+     *
+     * @param Route $route
+     * @param Request $request
+     * @param $compileResult
+     *
+     * @return CompiledRoute
+     */
     public function __construct(Route $route, Request $request, $compileResult)
     {
         $this->uri = $route->uri();
@@ -21,6 +41,11 @@ class CompiledRoute implements Serializable
         return $this;
     }
 
+    /**
+     * Get Response
+     *
+     * @return mixed
+     */
     public function getResponse()
     {
         return $this->response->send();

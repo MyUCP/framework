@@ -51,13 +51,24 @@ class RouteCompiler
         );
 
         if (method_exists($controller, 'callAction')) {
-            return $controller->callAction($method, $parameters);
+            return $this->getCompiledResponse($controller->callAction($method, $parameters));
         }
 
+        return $this->getCompiledResponse($controller->{$method}(...array_values($parameters)));
+    }
+
+    /**
+     * Get Response
+     *
+     * @param $content
+     * @return \MyUCP\Routing\CompiledRoute
+     */
+    public function getCompiledResponse($content)
+    {
         return (new CompiledRoute(
             $this->route,
             $this->request,
-            $controller->{$method}(...array_values($parameters))
+            $content
         ))->getResponse();
     }
 }
