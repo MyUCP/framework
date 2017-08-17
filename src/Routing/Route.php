@@ -3,12 +3,16 @@
 namespace MyUCP\Routing;
 
 use LogicException;
+use ReflectionFunction;
+use MyUCP\Response\Exception\HttpResponseException;
 use MyUCP\Container\Container;
 use MyUCP\Support\Arr;
 use MyUCP\Support\Str;
 
 class Route
 {
+    use RouteDependencyResolverTrait;
+
     /**
      * The URI pattern the route responds to.
      *
@@ -373,18 +377,6 @@ class Route
     }
 
     /**
-     * Get the key / value list of parameters without null values.
-     *
-     * @return array
-     */
-    public function parametersWithoutNulls()
-    {
-        return array_filter($this->parameters(), function ($p) {
-            return ! is_null($p);
-        });
-    }
-
-    /**
      * Determine if the route only responds to HTTP requests.
      *
      * @return bool
@@ -456,7 +448,8 @@ class Route
     public function compileRoute($request)
     {
         if (! $this->compiled) {
-            $this->compiled = (new RouteCompiler($this, $request))->compile();
+            $this->compiled = (new RouteCompiler($this, $request))->compile()
+                ->getResponse();
         }
     }
 
@@ -490,6 +483,16 @@ class Route
     public function methods()
     {
         return $this->methods;
+    }
+
+    /**
+     * Checks whether the route's action is a controller.
+     *
+     * @return bool
+     */
+    protected function isControllerAction()
+    {
+        return is_string($this->action['uses']);
     }
 
     /**
