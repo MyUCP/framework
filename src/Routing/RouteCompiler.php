@@ -42,6 +42,9 @@ class RouteCompiler
             return $controller->callAction($method, $parameters);
         }
 
-        return $controller->{$method}(...array_values($parameters));
+        return (new CompiledRoute(
+            $this->route,
+            $controller->{$method}(...array_values($parameters))
+        ))->getResponse();
     }
 }
