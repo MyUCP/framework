@@ -2,6 +2,8 @@
 
 namespace MyUCP\Routing;
 
+use Closure;
+
 class Router
 {
     /**
@@ -89,6 +91,44 @@ class Router
     }
 
     /**
+     * Register a new OPTIONS route with the router.
+     *
+     * @param  string  $uri
+     * @param  \Closure|array|string|null  $action
+     * @return \MyUCP\Routing\Route
+     */
+    public function options($uri, $action = null)
+    {
+        return $this->addRoute('OPTIONS', $uri, $action);
+    }
+
+    /**
+     * Register a new route responding to all verbs.
+     *
+     * @param  string  $uri
+     * @param  \Closure|array|string|null  $action
+     * @return \MyUCP\Routing\Route
+     */
+    public function any($uri, $action = null)
+    {
+        $verbs = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'];
+        return $this->addRoute($verbs, $uri, $action);
+    }
+
+    /**
+     * Register a new route with the given verbs.
+     *
+     * @param  array|string  $methods
+     * @param  string  $uri
+     * @param  \Closure|array|string|null  $action
+     * @return \MyUCP\Routing\Route
+     */
+    public function match($methods, $uri, $action = null)
+    {
+        return $this->addRoute(array_map('strtoupper', (array) $methods), $uri, $action);
+    }
+
+    /**
      * Add a route to the underlying route collection.
      *
      * @param  array|string  $methods
@@ -100,6 +140,7 @@ class Router
     {
         return $this->routes->add($this->createRoute($methods, $uri, $action));
     }
+
     /**
      * Create a new route instance.
      *
@@ -129,5 +170,22 @@ class Router
     {
         return (new Route($methods, $uri, $action))
             ->setRouter($this);
+    }
+
+    /**
+     * Load the provided routes.
+     *
+     * @param  \Closure|string  $routes
+     * @return void
+     */
+    protected function loadRoutes($routes)
+    {
+        if ($routes instanceof Closure) {
+            $routes($this);
+        } else {
+            $router = $this;
+
+            require $routes;
+        }
     }
 }

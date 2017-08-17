@@ -3,6 +3,7 @@
 namespace MyUCP\Routing;
 
 use LogicException;
+use MyUCP\Container\Container;
 use MyUCP\Support\Arr;
 
 class Route
@@ -302,5 +303,91 @@ class Route
             return $this->parameters;
         }
         throw new LogicException('Route is not bound.');
+    }
+
+    /**
+     * Determine if the route only responds to HTTP requests.
+     *
+     * @return bool
+     */
+    public function httpOnly()
+    {
+        return in_array('http', $this->action, true);
+    }
+
+    /**
+     * Determine if the route only responds to HTTPS requests.
+     *
+     * @return bool
+     */
+    public function httpsOnly()
+    {
+        return $this->secure();
+    }
+
+    /**
+     * Determine if the route only responds to HTTPS requests.
+     *
+     * @return bool
+     */
+    public function secure()
+    {
+        return in_array('https', $this->action, true);
+    }
+
+    /**
+     * Get the domain defined for the route.
+     *
+     * @return string|null
+     */
+    public function domain()
+    {
+        return isset($this->action['domain'])
+            ? str_replace(['http://', 'https://'], '', $this->action['domain']) : null;
+    }
+
+    /**
+     * Get the prefix of the route instance.
+     *
+     * @return string
+     */
+    public function getPrefix()
+    {
+        return isset($this->action['prefix']) ? $this->action['prefix'] : null;
+    }
+
+    /**
+     * Add a prefix to the route URI.
+     *
+     * @param  string  $prefix
+     * @return $this
+     */
+    public function prefix($prefix)
+    {
+        $uri = rtrim($prefix, '/').'/'.ltrim($this->uri, '/');
+        $this->uri = trim($uri, '/');
+        return $this;
+    }
+
+    /**
+     * Get the compiled version of the route.
+     *
+     * @return \MyUCP\Routing\CompiledRoute
+     */
+    public function getCompiled()
+    {
+        return $this->compiled;
+    }
+
+    /**
+     * Set the container instance on the route.
+     *
+     * @param  \MyUCP\Container\Container  $container
+     * @return $this
+     */
+    public function setContainer(Container $container)
+    {
+        $this->container = $container;
+        return $this;
     }
 }

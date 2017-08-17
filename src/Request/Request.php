@@ -1184,4 +1184,13 @@ class Request implements Arrayable, ArrayAccess
         }
         return $this->pathInfo;
     }
+
+    /**
+     * Returns the URL referrer.
+     * @return string|null URL referrer, null if not available
+     */
+    public function getReferrer()
+    {
+        return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+    }
 }
