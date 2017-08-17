@@ -453,10 +453,10 @@ class Route
      *
      * @return void
      */
-    public function compileRoute()
+    public function compileRoute($request)
     {
         if (! $this->compiled) {
-            $this->compiled = (new RouteCompiler($this))->compile();
+            $this->compiled = (new RouteCompiler($this, $request))->compile();
         }
     }
 

@@ -16,14 +16,22 @@ class RouteCompiler
     protected $route;
 
     /**
+     * The request instance.
+     *
+     * @var \MyUCP\Request\Request
+     */
+    protected $request;
+
+    /**
      * Create a new Route compiler instance.
      *
      * @param  \MyUCP\Routing\Route $route
      * @return void
      */
-    public function __construct($route)
+    public function __construct($route, Request $request)
     {
         $this->route = $route;
+        $this->request = $request;
     }
 
     /**
@@ -33,7 +41,7 @@ class RouteCompiler
      *
      * @return \MyUCP\Routing\CompiledRoute
      */
-    public function compile(Request $request)
+    public function compile()
     {
         $controller = $this->route->getController();
         $method = $this->route->getControllerMethod();
@@ -48,7 +56,7 @@ class RouteCompiler
 
         return (new CompiledRoute(
             $this->route,
-            $request,
+            $this->request,
             $controller->{$method}(...array_values($parameters))
         ))->getResponse();
     }
