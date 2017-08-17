@@ -6,6 +6,7 @@ use Countable;
 use ArrayIterator;
 use IteratorAggregate;
 use MyUCP\Support\Arr;
+use MyUCP\Request\Request;
 
 class RouteCollection implements Countable, IteratorAggregate
 {
@@ -59,9 +60,11 @@ class RouteCollection implements Countable, IteratorAggregate
     protected function addToCollections($route)
     {
         $domainAndUri = $route->domain().$route->uri();
+
         foreach ($route->methods() as $method) {
             $this->routes[$method][$domainAndUri] = $route;
         }
+
         $this->allRoutes[$method.$domainAndUri] = $route;
     }
 
@@ -121,7 +124,7 @@ class RouteCollection implements Countable, IteratorAggregate
     {
         return isset($this->nameList[$name]) ? $this->nameList[$name] : null;
     }
-    
+
     /**
      * Get a route instance by its controller action.
      *
@@ -132,7 +135,7 @@ class RouteCollection implements Countable, IteratorAggregate
     {
         return isset($this->actionList[$action]) ? $this->actionList[$action] : null;
     }
-    
+
     /**
      * Get all of the routes in the collection.
      *
@@ -142,7 +145,7 @@ class RouteCollection implements Countable, IteratorAggregate
     {
         return array_values($this->allRoutes);
     }
-    
+
     /**
      * Get all of the routes keyed by their HTTP verb / method.
      *
@@ -181,5 +184,25 @@ class RouteCollection implements Countable, IteratorAggregate
     public function count()
     {
         return count($this->getRoutes());
+    }
+
+    /**
+     * Find the first route matching a given request.
+     *
+     * @param  \MyUCP\Request\Request  $request
+     * @return \MyUCP\Routing\Route
+     *
+     * @throws \MyUCP\Response\Exception\NotFoundHttpException
+     */
+    public function match(Request $request)
+    {
+        $routes = $this->get($request->getMethod());
+
+        $results = [];
+
+        foreach ($routes as $pattern => $route) {
+            $results[] = $request->is($route->uri);
+        }
+
     }
 }

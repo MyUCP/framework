@@ -5,6 +5,7 @@ namespace MyUCP\Routing;
 use LogicException;
 use MyUCP\Container\Container;
 use MyUCP\Support\Arr;
+use MyUCP\Request\Request;
 
 class Route
 {
@@ -56,6 +57,13 @@ class Route
      * @var array|null
      */
     public $parameterNames;
+
+    /**
+     * The compiled version of the route.
+     *
+     * @var \MyUCP\Routing\CompiledRoute
+     */
+    public $compiled;
 
     /**
      * Create a new Route instance.
@@ -388,6 +396,32 @@ class Route
     public function setContainer(Container $container)
     {
         $this->container = $container;
+        return $this;
+    }
+
+    /**
+     * Get the HTTP verbs the route responds to.
+     *
+     * @return array
+     */
+    public function methods()
+    {
+        return $this->methods;
+    }
+
+    /**
+     * Bind the route to a given request for execution.
+     *
+     * @param  \MyUCP\Request\Request  $request
+     * @return $this
+     */
+    public function bind(Request $request)
+    {
+        $this->compileRoute();
+
+        $this->parameters = (new RouteParameterBinder($this))
+            ->parameters($request);
+
         return $this;
     }
 }

@@ -3,6 +3,8 @@
 namespace MyUCP\Routing;
 
 use Closure;
+use MyUCP\Container\Container;
+use MyUCP\Request\Request;
 
 class Router
 {
@@ -12,6 +14,13 @@ class Router
      * @var \MyUCP\Routing\RouteCollection
      */
     protected $routes;
+
+    /**
+     * The IoC container instance.
+     *
+     * @var \MyUCP\Container\Container
+     */
+    protected $container;
 
     /**
      * All of the verbs supported by the router.
@@ -25,9 +34,10 @@ class Router
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Container $container = null)
     {
         $this->routes = new RouteCollection;
+        $this->container = $container ?: new Container;
     }
 
     /**
@@ -187,5 +197,60 @@ class Router
 
             require $routes;
         }
+    }
+
+    /**
+     * Get the underlying route collection.
+     *
+     * @return \MyUCP\Routing\RouteCollection
+     */
+    public function getRoutes()
+    {
+        return $this->routes;
+    }
+
+    /**
+     * Set the route collection instance.
+     *
+     * @param  \MyUCP\Routing\RouteCollection  $routes
+     * @return void
+     */
+    public function setRoutes(RouteCollection $routes)
+    {
+        foreach ($routes as $route) {
+            $route->setRouter($this)->setContainer($this->container);
+        }
+
+        $this->routes = $routes;
+
+        $this->container->instance('routes', $this->routes);
+    }
+
+    /**
+     * Make the request to the application.
+     *
+     * @param  \MyUCP\Request\Request  $request
+     * @return mixed
+     */
+    public function make(Request $request)
+    {
+        $this->currentRequest = $request;
+
+        return $this->findRoute($request);
+    }
+
+    /**
+     * Find the route matching a given request.
+     *
+     * @param  \MyUCP\Request\Request  $request
+     * @return \MyUCP\Routing\Route
+     */
+    protected function findRoute($request)
+    {
+        $this->current = $route = $this->routes->match($request);
+
+        $this->container->instance(Route::class, $route);
+
+        return $route;
     }
 }
