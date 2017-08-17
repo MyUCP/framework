@@ -443,12 +443,13 @@ class Container implements ArrayAccess
     public function instance($abstract, $instance)
     {
         $this->removeAbstractAlias($abstract);
+
         $isBound = $this->bound($abstract);
+
         unset($this->aliases[$abstract]);
-        // We'll check to determine if this type has been bound before, and if it has
-        // we will fire the rebound callbacks registered with the container and it
-        // can be updated with consuming classes that have gotten resolved here.
+
         $this->instances[$abstract] = $instance;
+
         if ($isBound) {
             $this->rebound($abstract);
         }

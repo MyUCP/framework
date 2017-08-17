@@ -241,6 +241,18 @@ class Router
     }
 
     /**
+     * Set the container instance on the route.
+     *
+     * @param  \MyUCP\Container\Container  $container
+     * @return $this
+     */
+    public function setContainer(Container $container)
+    {
+        $this->container = $container;
+        return $this;
+    }
+
+    /**
      * Make the request to the application.
      *
      * @param  \MyUCP\Request\Request  $request
