@@ -426,3 +426,16 @@ if (! function_exists('cookie')) {
         return $cookie->make($name, $value, $minutes, $path, $domain, $secure, $httpOnly);
     }
 }
+
+if (! function_exists('head')) {
+    /**
+     * Get the first element of an array. Useful for method chaining.
+     *
+     * @param  array  $array
+     * @return mixed
+     */
+    function head($array)
+    {
+        return reset($array);
+    }
+}

@@ -375,7 +375,7 @@ class Route
         }
         throw new LogicException('Route is not bound.');
     }
-    
+
     /**
      * Get the key / value list of parameters without null values.
      *

@@ -94,7 +94,7 @@ class Core extends Container implements CoreInterface {
                     'config'                =>  \MyUCP\Config\Config::class,
                     'request'               =>  \MyUCP\Request\Request::class,
                     'response'              =>  \MyUCP\Response\Response::class,
-                    'cookie'                =>  \MyUCP\Cookie\Cookie::class,
+                    'cookie'                =>  \MyUCP\Cookie\CookieJar::class,
                  ] as $key => $alias) {
             $this->alias($key, $alias);
         }
