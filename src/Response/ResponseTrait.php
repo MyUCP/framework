@@ -82,6 +82,33 @@ trait ResponseTrait
     }
 
     /**
+     * Add a cookie to the response.
+     *
+     * @param  \MyUCP\Cookie\Cookie|mixed  $cookie
+     * @return $this
+     */
+    public function cookie($cookie)
+    {
+        return call_user_func_array([$this, 'withCookie'], func_get_args());
+    }
+
+
+    /**
+     * Add a cookie to the response.
+     *
+     * @param  \MyUCP\Cookie\Cookie|mixed  $cookie
+     * @return $this
+     */
+    public function withCookie($cookie)
+    {
+        if (is_string($cookie) && function_exists('cookie')) {
+            $cookie = call_user_func_array('cookie', func_get_args());
+        }
+        $this->headers->setCookie($cookie);
+        return $this;
+    }
+
+    /**
      * Set the exception to attach to the response.
      *
      * @param  \Exception  $e

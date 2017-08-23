@@ -2,6 +2,8 @@
 
 namespace MyUCP\Response;
 
+use InvalidArgumentException;
+use MyUCP\Cookie\Cookie;
 
 class ResponseHeaderBag extends HeaderBag
 {
@@ -220,12 +222,12 @@ class ResponseHeaderBag extends HeaderBag
      *
      * @return array
      *
-     * @throws \InvalidArgumentException When the $format is invalid
+     * @throws InvalidArgumentException When the $format is invalid
      */
     public function getCookies($format = self::COOKIES_FLAT)
     {
         if (!in_array($format, array(self::COOKIES_FLAT, self::COOKIES_ARRAY))) {
-            throw new \InvalidArgumentException(sprintf('Format "%s" invalid (%s).', $format, implode(', ', array(self::COOKIES_FLAT, self::COOKIES_ARRAY))));
+            throw new InvalidArgumentException(sprintf('Format "%s" invalid (%s).', $format, implode(', ', array(self::COOKIES_FLAT, self::COOKIES_ARRAY))));
         }
 
         if (self::COOKIES_ARRAY === $format) {
@@ -269,14 +271,14 @@ class ResponseHeaderBag extends HeaderBag
      *
      * @return string A string suitable for use as a Content-Disposition field-value
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      *
      * @see RFC 6266
      */
     public function makeDisposition($disposition, $filename, $filenameFallback = '')
     {
         if (!in_array($disposition, array(self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE))) {
-            throw new \InvalidArgumentException(sprintf('The disposition must be either "%s" or "%s".', self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE));
+            throw new InvalidArgumentException(sprintf('The disposition must be either "%s" or "%s".', self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE));
         }
 
         if ('' == $filenameFallback) {
@@ -285,17 +287,17 @@ class ResponseHeaderBag extends HeaderBag
 
         // filenameFallback is not ASCII.
         if (!preg_match('/^[\x20-\x7e]*$/', $filenameFallback)) {
-            throw new \InvalidArgumentException('The filename fallback must only contain ASCII characters.');
+            throw new InvalidArgumentException('The filename fallback must only contain ASCII characters.');
         }
 
         // percent characters aren't safe in fallback.
         if (false !== strpos($filenameFallback, '%')) {
-            throw new \InvalidArgumentException('The filename fallback cannot contain the "%" character.');
+            throw new InvalidArgumentException('The filename fallback cannot contain the "%" character.');
         }
 
         // path separators aren't allowed in either.
         if (false !== strpos($filename, '/') || false !== strpos($filename, '\\') || false !== strpos($filenameFallback, '/') || false !== strpos($filenameFallback, '\\')) {
-            throw new \InvalidArgumentException('The filename and the fallback cannot contain the "/" and "\\" characters.');
+            throw new InvalidArgumentException('The filename and the fallback cannot contain the "/" and "\\" characters.');
         }
 
         $output = sprintf('%s; filename="%s"', $disposition, str_replace('"', '\\"', $filenameFallback));
