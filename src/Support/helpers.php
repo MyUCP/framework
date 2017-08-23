@@ -5,6 +5,7 @@ use MyUCP\Support\Str;
 use MyUCP\Support\Collection;
 use MyUCP\Support\Debug\Dumper;
 use MyUCP\Container\Container;
+use MyUCP\Cookie\Cookie;
 
 if (! function_exists('array_add')) {
     /**
@@ -400,5 +401,28 @@ if (! function_exists('app')) {
         return empty($parameters)
             ? Container::getInstance()->make($abstract)
             : Container::getInstance()->makeWith($abstract, $parameters);
+    }
+}
+
+if (! function_exists('cookie')) {
+    /**
+     * Create a new cookie instance.
+     *
+     * @param  string  $name
+     * @param  string  $value
+     * @param  int     $minutes
+     * @param  string  $path
+     * @param  string  $domain
+     * @param  bool    $secure
+     * @param  bool    $httpOnly
+     * @return \MyUCP\Cookie\Cookie
+     */
+    function cookie($name = null, $value = null, $minutes = 0, $path = null, $domain = null, $secure = false, $httpOnly = true)
+    {
+        $cookie = app(Cookie::class);
+        if (is_null($name)) {
+            return $cookie;
+        }
+        return $cookie->make($name, $value, $minutes, $path, $domain, $secure, $httpOnly);
     }
 }

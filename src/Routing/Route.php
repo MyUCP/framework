@@ -375,6 +375,18 @@ class Route
         }
         throw new LogicException('Route is not bound.');
     }
+    
+    /**
+     * Get the key / value list of parameters without null values.
+     *
+     * @return array
+     */
+    public function parametersWithoutNulls()
+    {
+        return array_filter($this->parameters(), function ($p) {
+            return ! is_null($p);
+        });
+    }
 
     /**
      * Determine if the route only responds to HTTP requests.
