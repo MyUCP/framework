@@ -5,7 +5,7 @@ use MyUCP\Support\Str;
 use MyUCP\Support\Collection;
 use MyUCP\Support\Debug\Dumper;
 use MyUCP\Container\Container;
-use MyUCP\Cookie\Cookie;
+use MyUCP\Cookie\CookieJar;
 
 if (! function_exists('array_add')) {
     /**
@@ -415,11 +415,11 @@ if (! function_exists('cookie')) {
      * @param  string  $domain
      * @param  bool    $secure
      * @param  bool    $httpOnly
-     * @return \MyUCP\Cookie\Cookie
+     * @return \MyUCP\Cookie\CookieJar
      */
     function cookie($name = null, $value = null, $minutes = 0, $path = null, $domain = null, $secure = false, $httpOnly = true)
     {
-        $cookie = app(Cookie::class);
+        $cookie = app(CookieJar::class);
         if (is_null($name)) {
             return $cookie;
         }
