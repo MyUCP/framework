@@ -2,8 +2,8 @@
 
 namespace MyUCP\Routing;
 
+use MyUCP\Container\Container;
 use ReflectionFunction;
-use MyUCP\Request\Request;
 use MyUCP\Response\Exception\HttpResponseException;
 
 class RouteCompiler
@@ -18,28 +18,27 @@ class RouteCompiler
     protected $route;
 
     /**
-     * The request instance.
+     * The container instance.
      *
-     * @var \MyUCP\Request\Request
+     * @var \MyUCP\Container\Container
      */
-    protected $request;
+    protected $container;
 
     /**
      * Create a new Route compiler instance.
      *
      * @param  \MyUCP\Routing\Route $route
+     * @param \MyUCP\Container\Container $route
      * @return void
      */
-    public function __construct($route, Request $request)
+    public function __construct(Route $route, Container $container)
     {
         $this->route = $route;
-        $this->request = $request;
+        $this->container = $container;
     }
 
     /**
      * Compile the route.
-     *
-     * @param \MyUCP\Request\Request $request
      *
      * @return \MyUCP\Routing\CompiledRoute
      *
@@ -131,7 +130,7 @@ class RouteCompiler
     {
         return (new CompiledRoute(
             $this->route,
-            $this->request,
+            $this->container,
             $content
         ));
     }

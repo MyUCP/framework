@@ -5,6 +5,7 @@ namespace MyUCP\Routing;
 use Countable;
 use ArrayIterator;
 use IteratorAggregate;
+use MyUCP\Container\Container;
 use MyUCP\Support\Arr;
 use MyUCP\Request\Request;
 use MyUCP\Response\Exception\NotFoundHttpException;
@@ -190,17 +191,17 @@ class RouteCollection implements Countable, IteratorAggregate
     /**
      * Find the first route matching a given request.
      *
-     * @param  \MyUCP\Request\Request  $request
+     * @param  \MyUCP\Container\Container  $request
      * @return \MyUCP\Routing\Route
      *
      * @throws \MyUCP\Response\Exception\NotFoundHttpException
      */
-    public function match(Request $request)
+    public function match(Container $container)
     {
-        $routes = $this->get($request->getMethod());
+        $routes = $this->get($container['request']->getMethod());
 
         foreach ($routes as $route) {
-            if(RouteMatch::parseUri($route, $request)) {
+            if(RouteMatch::parseUri($route, $container['request'])) {
                 return $route;
             }
         }

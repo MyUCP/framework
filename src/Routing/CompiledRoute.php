@@ -2,8 +2,7 @@
 
 namespace MyUCP\Routing;
 
-use MyUCP\Request\Request;
-use MyUCP\Response\Response;
+use MyUCP\Container\Container;
 use Serializable;
 
 class CompiledRoute implements Serializable
@@ -19,6 +18,11 @@ class CompiledRoute implements Serializable
     private $parameters;
 
     /**
+     * @var \MyUCP\Container\Container
+     */
+    private $container;
+
+    /**
      * @var \MyUCP\Response\Response
      */
     private $response;
@@ -26,17 +30,18 @@ class CompiledRoute implements Serializable
     /**
      * CompiledRoute constructor.
      *
-     * @param Route $route
-     * @param Request $request
+     * @param \MyUCP\Routing\Route $route
+     * @param \MyUCP\Container\Container $container
      * @param $compileResult
      *
      * @return CompiledRoute
      */
-    public function __construct(Route $route, Request $request, $compileResult)
+    public function __construct(Route $route, Container $container, $compileResult)
     {
         $this->uri = $route->uri();
         $this->parameters = $route->parameters();
-        $this->response = Response::create($compileResult)->prepare($request);
+        $this->container = $container;
+        $this->response = $container['response'];
 
         return $this;
     }

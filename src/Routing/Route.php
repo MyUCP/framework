@@ -455,12 +455,14 @@ class Route
     /**
      * Compile the route
      *
+     * @param \MyUCP\Container\Container $container
+     *
      * @return void
      */
-    public function compileRoute($request)
+    public function compileRoute($container)
     {
         if (! $this->compiled) {
-            $this->compiled = (new RouteCompiler($this, $request))->compile()
+            $this->compiled = (new RouteCompiler($this, $container))->compile()
                 ->getResponse();
         }
     }

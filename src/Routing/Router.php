@@ -255,16 +255,15 @@ class Router
     /**
      * Make the request to the application.
      *
-     * @param  \MyUCP\Request\Request  $request
      * @return mixed
      */
-    public function make(Request $request)
+    public function make()
     {
-        $this->currentRequest = $request;
+        $this->currentRequest = $this->container['request'];
 
-        $route = $this->findRoute($request);
+        $route = $this->findRoute();
 
-        $route->compileRoute($request);
+        $route->compileRoute($this->container);
 
         return $route->getCompiled();
     }
@@ -272,12 +271,11 @@ class Router
     /**
      * Find the route matching a given request.
      *
-     * @param  \MyUCP\Request\Request  $request
      * @return \MyUCP\Routing\Route
      */
-    protected function findRoute($request)
+    protected function findRoute()
     {
-        $this->current = $route = $this->routes->match($request);
+        $this->current = $route = $this->routes->match($this->container);
 
         $this->container->instance(Route::class, $route);
 
