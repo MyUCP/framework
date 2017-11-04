@@ -439,3 +439,146 @@ if (! function_exists('head')) {
         return reset($array);
     }
 }
+
+if (! function_exists('app_path')) {
+    /**
+     * Get the path to the application folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function app_path($path = '')
+    {
+        return app('path').($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
+}
+
+if (! function_exists('asset')) {
+    /**
+     * Generate an asset path for the application.
+     *
+     * @param  string  $path
+     * @param  bool    $secure
+     * @return string
+     */
+    function asset($path, $secure = null)
+    {
+        return app('url')->asset($path, $secure);
+    }
+}
+
+if (! function_exists('base_path')) {
+    /**
+     * Get the path to the base of the install.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function base_path($path = '')
+    {
+        return app()->basePath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
+}
+
+if (! function_exists('config_path')) {
+    /**
+     * Get the configuration path.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function config_path($path = '')
+    {
+        return app()->make('path.config').($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
+}
+
+if (! function_exists('public_path')) {
+    /**
+     * Get the path to the public folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function public_path($path = '')
+    {
+        return app()->make('path.public').($path ? DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR) : $path);
+    }
+}
+
+if (! function_exists('resource_path')) {
+    /**
+     * Get the path to the resources folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function resource_path($path = '')
+    {
+        return app()->resourcePath($path);
+    }
+}
+
+if (! function_exists('secure_asset')) {
+    /**
+     * Generate an asset path for the application.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function secure_asset($path)
+    {
+        return asset($path, true);
+    }
+}
+
+if (! function_exists('secure_url')) {
+    /**
+     * Generate a HTTPS url for the application.
+     *
+     * @param  string  $path
+     * @param  mixed   $parameters
+     * @return string
+     */
+    function secure_url($path, $parameters = [])
+    {
+        return url($path, $parameters, true);
+    }
+}
+
+if (! function_exists('session')) {
+    /**
+     * Get / set the specified session value.
+     *
+     * If an array is passed as the key, we will assume you want to set an array of values.
+     *
+     * @param  array|string  $key
+     * @param  mixed  $default
+     * @return mixed|\MyUCP\Session\Session
+     */
+    function session($key = null, $default = null)
+    {
+        if (is_null($key)) {
+            return app('session');
+        }
+
+        if (is_array($key)) {
+            return app('session')->put($key);
+        }
+
+        return app('session')->get($key, $default);
+    }
+}
+
+if (! function_exists('storage_path')) {
+    /**
+     * Get the path to the storage folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function storage_path($path = '')
+    {
+        return app('path.storage').($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
+}
